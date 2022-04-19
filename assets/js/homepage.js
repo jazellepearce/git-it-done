@@ -3,6 +3,8 @@ var nameInputEl = document.querySelector("#username");
 var repoContainerEl = document.querySelector("#repos-container");
 var repoSearchTerm = document.querySelector("#repo-search-term");
 
+var languageButtonsEl = document.querySelector("#language-buttons");
+
 var formSubmitHandler = function(event) {
   // prevent page from refreshing
   event.preventDefault();
@@ -20,6 +22,16 @@ var formSubmitHandler = function(event) {
     alert("Please enter a GitHub username");
   }
 };
+
+var buttonClickHandler = function(event) {
+    var language = event.target.getAttribute("data-language");
+
+    if (language) {
+        getFeaturedRepos(language);
+
+        repoContainerEl.textContent = "";
+    }
+}
 
 var getUserRepos = function(user) {
   // format the github api url
@@ -58,15 +70,12 @@ var displayRepos = function(repos, searchTerm) {
     // format repo name
     var repoName = repos[i].owner.login + "/" + repos[i].name;
 
-<<<<<<< HEAD
     // create a container for each repo
     var repoEl = document.createElement('a');
-    repoEl.classList = 'list-item flex-row justify-space-between align-center';
-=======
+    repoEl.classList = "list-item flex-row justify-space-between align-center";
     // create a link for each repo
     var repoEl = document.createElement("a");
     repoEl.classList = "list-item flex-row justify-space-between align-center";
->>>>>>> feature/list-issues
     repoEl.setAttribute("href", "./single-repo.html?repo=" + repoName);
 
     // create a span element to hold repository name
@@ -96,5 +105,21 @@ var displayRepos = function(repos, searchTerm) {
   }
 };
 
+var getFeaturedRepos = function(language) {
+    var apiUrl = "https://api.github.com/search/repositories?q=" + language + "+is:featured&sort=help-wanted-issues";
+
+    fetch(apiUrl).then(function(response) {
+        if (response.ok) {
+            response.json().then(function(data) {
+           displayRepos(data.items, language);
+            });
+        }else {
+            alert("Error: GitHub User Not Found");
+        }
+    })
+}
+
 // add event listeners to forms
 userFormEl.addEventListener("submit", formSubmitHandler);
+
+languageButtonsEl.addEventListener("click", buttonClickHandler);
